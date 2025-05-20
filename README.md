@@ -1,4 +1,4 @@
-# SafeStar - Pathfinding for Emergency Egress in Robotics
+# SafeStar – Hazard-Aware Pathfinding for Robotics
 
 SafeStar is a real-time pathfinding system that calculates optimal escape routes using a modified A\* algorithm. Originally developed in Python, this version is implemented in C for embedded MCUs like FRDM K64F, focusing on hazard avoidance and emergency evacuation.
 
