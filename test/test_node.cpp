@@ -10,25 +10,25 @@ TEST_CASE("Node initializes with correct default values", "[Node]") {
 
     SECTION("Default-initialized fields") {
         REQUIRE(n.backpointer == -1);
-        REQUIRE(n.d_exit == std::numeric_limits<int>::max());
-        REQUIRE(n.safety == std::numeric_limits<int>::max());
-        REQUIRE(n.cost == 0.0);
+        REQUIRE(n.d_exit == std::numeric_limits<std::int16_t>::max());
+        REQUIRE(n.safety == std::numeric_limits<std::int16_t>::max());
+        REQUIRE(n.cost == 0.0f);
         REQUIRE(n.coords[0] == 0);
         REQUIRE(n.coords[1] == 0);
-        REQUIRE(n.neighbors.empty());
+        REQUIRE(n.neighbors == std::array<int16_t, 4>{}); // All zeros
     }
 
     SECTION("Node can be assigned values") {
         n.node_id = 5;
         n.coords = {3, 4};
-        n.cost = 12.5;
-        n.neighbors = {1, 2, 3};
+        n.cost = 12.5f;
+        n.neighbors = {1, 2, 3, 4}; // Must fill all 4
 
         REQUIRE(n.node_id == 5);
         REQUIRE(n.coords[0] == 3);
         REQUIRE(n.coords[1] == 4);
-        REQUIRE(n.cost == Catch::Approx(12.5));
-        REQUIRE(n.neighbors.size() == 3);
+        REQUIRE(n.cost == Catch::Approx(12.5f));
+        REQUIRE(n.neighbors.size() == 4);
         REQUIRE(n.neighbors[2] == 3);
     }
 }
