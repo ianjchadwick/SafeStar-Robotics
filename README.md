@@ -1,50 +1,31 @@
-# SafeStar – Hazard-Aware Pathfinding for Robotics
+# SafeStar-Robotics
 
-SafeStar is a real-time pathfinding system that calculates optimal escape routes using a modified A\* algorithm. Originally developed in Python, this version is implemented in C for embedded MCUs like FRDM K64F, focusing on hazard avoidance and emergency evacuation.
+**Hazard-aware pathfinding system** designed for emergency egress and motion planning.  
+Implements a modular C++ engine using A* with safety-weighted heuristics and real-time hazard inputs.
 
----
+## Status: Work in Progress
 
-### Hardware and Tools:
+This project is under active development. Current focus areas:
+- Adapting the core C++ engine for deployment on a Kinetis K64 microcontroller
+- Refining safety heuristics and hazard update models
+- Adding test cases and MCU integration demos
 
-* FRDM K64F, Renesas RA0E1, FRDM MCXC444, FRDM MCXA-153
-* OLED/LED matrix for visual output
-* C/C++, UART, FreeRTOS (optional)
-
----
-
-### Project Structure:
-
-* `algorithm/` - A\* and Safe\* implementations
-* `mcu/` - MCU drivers and integration
-* `visualization/` - Display and output handling
-* `testing/` - Test cases and validation scripts
-* `docs/` - Documentation and technical details
+Expect incomplete features, evolving architecture, and stubbed modules.  
+A high-level architecture overview will be added to `docs/architecture.md`.
 
 ---
 
-### Installation:
+## Features (planned and in progress)
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/ianjchadwick/SafeStar-Robotics.git
-   ```
-2. Open the project in an IDE (MCUXpresso, IAR).
-3. Compile and flash to the target MCU.
-4. Connect UART for debugging.
+- A* pathfinding with dynamic safety cost mapping
+- Modular hazard input and reactive updates
+- Real-time path recalculation for constrained embedded environments
+- Microcontroller deployment (target: Kinetis K64)
 
 ---
 
-### Usage:
+## Goals
 
-* Configure parameters in `config.h`.
-* Monitor pathfinding output via UART.
-* Adjust hazard data to simulate real-world conditions.
-
----
-
-### Future Work:
-
-* Sensor integration for dynamic hazard updates.
-* Enhanced heuristics for multi-agent pathfinding.
-* Memory optimization for constrained MCUs.
+- Demonstrate embedded robotics motion planning without ROS
+- Serve as a portfolio project for real-time, safety-aware control logic
+- Highlight firmware-to-algorithm integration on low-power hardware
