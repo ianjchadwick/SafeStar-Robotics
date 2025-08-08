@@ -1,103 +1,78 @@
 # SafeStar Robotics
 
-SafeStar is a hazard-aware pathfinding system designed for embedded deployment.  
-It implements a modular C++ engine that extends A* pathfinding with safety-weighted heuristics, dynamic cost mapping, and configurable hazard sources.
+[![CI](https://github.com/ianjchadwick/SafeStar-Robotics/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ianjchadwick/SafeStar-Robotics/actions/workflows/ci.yml)
+
+# SafeStar Robotics
+
+SafeStar is a hazard-aware pathfinding system for embedded deployment. It extends A* with a wavefront-based **safety score** (0 at hazards; higher = safer) to find the **closest safe exit** rather than the merely shortest path.
+
+- C++ desktop demo (safety-aware A*)
+- Python prototype (logic + visualization)
+- MCU port in progress (FRDM-K64F)
 
 ---
 
-## Overview
+## Quickstart (C++)
 
-This project explores how embedded systems can make real-time navigation decisions in the presence of environmental risks.  
-The SafeStar algorithm combines standard A* pathfinding with a **safety score** model that steers paths away from hazards as well as toward the nearest exit.
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+./build/safeStar_demo
+```
 
-System components include:
-- A desktop C++ demo for safety-augmented pathfinding on weighted grids
-- A Python prototype for logic exploration and algorithm development
-- Ongoing work targeting deployment on a Kinetis K64 microcontroller
+> Add a screenshot or GIF at `docs/images/safestar_demo.png` and reference it below:
 
-The architecture is portable, modular, and ROS-independent.
+![SafeStar demo](docs/images/safestar_demo.png)
 
 ---
 
-## How Safety Works
+## How it works (one minute)
 
-- SafeStar uses a **wavefront propagation algorithm** to assign a *safety score* to each grid cell.
-    - Cells directly on a hazard have a safety score of `0` (maximally unsafe).
-    - Safety score increases with distance from the nearest hazard.
-    - Pathfinding strongly prefers routes through cells with higher safety scores, balancing safety and exit proximity.
-- The classic A* baseline considers only shortest path to exit, ignoring hazard locations.
+- **Wavefront safety score:** BFS from hazards sets `safety_score` per cell (0 at hazard; increases with distance).
+- **SafeStar planner:** multi-objective A* that favors higher safety *and* reduced distance-to-exit.
+- **Baseline:** classic A* ignores hazards for comparison.
 
-**Grid legend:**
-- `S`: SafeStar path (safety-aware, multi-objective)
-- `A`: Classic A* path (distance only)
-- `@`: Both paths overlap
-- `H`: Hazard
-- `E`: Exit
-- `X`: Start
-- `#`: Obstacle
+Legend: `S` SafeStar, `A` A*, `@` overlap, `H` hazard, `E` exit, `X` start, `#` obstacle.
 
 ---
 
 ## Project Layout
 
 ```
-├── apps/                   # Runnable desktop demos (C++)
-│   ├── astar_demo.cpp      # Basic A* on hazard-weighted grid
-│   └── hazard_demo.cpp     # Custom cost function using safety and goal heuristics
-├── python_prototype/       # Archived Python logic prototype and visualization
+├── apps/                       # Runnable desktop demos (C++)
+│   ├── include/            
+|   |   └──safeStar.hpp
+|   ├── src/
+|   |   ├──safeStar_demo.cpp    # Safety-aware pathfinding demo
+|   |   └──safeStar.cpp
+├── python_prototype/           # Archived Python prototype + visualization
 │   ├── hazard_pathfinder.py
 │   ├── draw_visualization.py
 │   └── README.md
-├── include/                # Shared headers (optional)
-├── src/                    # Embedded-targeted logic modules (optional)
+├── include/                    # MCU Port Includes (WIP)
+├── src/                        # MCU Port Source (WIP)
+├── test/                       # Unit tests (ctest/Catch2)
 ├── CMakeLists.txt
-└── README.md               # Top-level overview
+└── README.md
 ```
 
 ---
 
-## Building the C++ Demo
+## Docs
 
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
-./build/hazard_demo
-```
-
----
-
-## Python Visualization
-
-The archived Python prototype includes full grid rendering with multiple test cases.
-
-```bash
-cd python_prototype
-python draw_visualization.py
-```
-
----
-
-## Features
-
-- Custom A* implementation with safety-weighted multi-objective heuristics
-- Wavefront propagation to assign safety scores
-- Configurable obstacle, hazard, and exit locations
-- Tunable cost model combining exit proximity and safety score
-- Designed for embedded systems with deterministic behavior
-
----
-
-## Development Goals
-
-- Implement hazard-aware path planning for microcontroller environments
-- Demonstrate real-time, safety-oriented control logic without ROS
-- Provide a portfolio-grade example of algorithm-to-firmware integration
+- Usage: [`docs/USAGE.md`](docs/USAGE.md)
+- Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Testing: [`docs/TESTING.md`](docs/TESTING.md)
+- MCU notes: [`docs/MCU_NOTES.md`](docs/MCU_NOTES.md)
 
 ---
 
 ## Status
 
-- Desktop C++ demo complete
-- Python prototype archived for reference
-- Embedded port in progress (target: Kinetis K64)
-- Documentation and benchmarks to follow
+- Desktop C++ demo: complete
+- Python prototype: archived
+- MCU port (FRDM-K64F): in progress
+
+## License
+
+MIT
