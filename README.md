@@ -1,31 +1,82 @@
-# SafeStar-Robotics
+# SafeStar Robotics
 
-**Hazard-aware pathfinding system** designed for emergency egress and motion planning.  
-Implements a modular C++ engine using A* with safety-weighted heuristics and real-time hazard inputs.
-
-## Status: Work in Progress
-
-This project is under active development. Current focus areas:
-- Adapting the core C++ engine for deployment on a Kinetis K64 microcontroller
-- Refining safety heuristics and hazard update models
-- Adding test cases and MCU integration demos
-
-Expect incomplete features, evolving architecture, and stubbed modules.  
-A high-level architecture overview will be added to `docs/architecture.md`.
+SafeStar is a hazard-aware pathfinding system designed for embedded deployment.  
+It implements a modular C++ engine that extends A* pathfinding with safety-weighted heuristics, dynamic cost mapping, and configurable hazard sources.
 
 ---
 
-## Features (planned and in progress)
+## Overview
 
-- A* pathfinding with dynamic safety cost mapping
-- Modular hazard input and reactive updates
-- Real-time path recalculation for constrained embedded environments
-- Microcontroller deployment (target: Kinetis K64)
+This project explores how embedded systems can make real-time navigation decisions in the presence of dynamic environmental risks. The system includes:
+
+- A desktop C++ demo for safety-augmented pathfinding on weighted grids
+- A Python prototype used for logic exploration and algorithm development
+- Ongoing work targeting deployment on a Kinetis K64 microcontroller
+
+The architecture is portable, modular, and ROS-independent.
 
 ---
 
-## Goals
+## Project Layout
 
-- Demonstrate embedded robotics motion planning without ROS
-- Serve as a portfolio project for real-time, safety-aware control logic
-- Highlight firmware-to-algorithm integration on low-power hardware
+```
+├── apps/                   # Runnable desktop demos (C++)
+│   ├── astar_demo.cpp      # Basic A* on hazard-weighted grid
+│   └── hazard_demo.cpp     # Custom cost function using safety and goal heuristics
+├── python_prototype/       # Archived Python logic prototype and visualization
+│   ├── hazard_pathfinder.py
+│   ├── draw_visualization.py
+│   └── README.md
+├── include/                # Shared headers (optional)
+├── src/                    # Embedded-targeted logic modules (optional)
+├── CMakeLists.txt
+└── README.md               # Top-level overview
+```
+
+---
+
+## Building the C++ Demo
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+./build/hazard_demo
+```
+
+---
+
+## Python Visualization
+
+The archived Python prototype includes full grid rendering with multiple test cases.
+
+```bash
+cd python_prototype
+python draw_visualization.py
+```
+
+---
+
+## Features
+
+- Custom A* implementation with multi-objective heuristics
+- Hazard wavefront propagation
+- Configurable obstacle and exit locations
+- Tunable cost model combining exit proximity and hazard distance
+- Designed for embedded systems with deterministic behavior
+
+---
+
+## Development Goals
+
+- Implement hazard-aware path planning in microcontroller environments
+- Demonstrate real-time, safety-oriented control logic without ROS
+- Provide a portfolio-grade example of algorithm-to-firmware integration
+
+---
+
+## Status
+
+- Desktop C++ demo complete
+- Python prototype archived for reference
+- Embedded port in progress (target: Kinetis K64)
+- Documentation and benchmarks to follow
