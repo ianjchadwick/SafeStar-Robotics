@@ -8,4 +8,4 @@
 /*.exe
 .vscode/
 python_prototype/safestar_env/
-python_prototype/__pycache__/
+__pycache__/
