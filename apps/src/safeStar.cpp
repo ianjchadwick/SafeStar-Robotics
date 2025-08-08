@@ -4,16 +4,6 @@
 #include <algorithm>
 #include <cmath>
 
-struct Node {
-    int id;
-    int x, y;
-    int d_exit = std::numeric_limits<int>::max();          // Manhattan distance to nearest exit
-    int hazard_distance = std::numeric_limits<int>::max(); // Distance from hazard source
-    std::vector<int> neighbors;                            // Node IDs
-    double cost = INFINITY;
-    int backpointer = -1;
-};
-
 using Grid = std::vector<std::vector<int>>; // 0: obstacle, >0: node id
 
 // Helper: Manhattan distance
@@ -75,7 +65,7 @@ void node_set_d_exit(std::vector<Node>& nodes, const std::vector<std::pair<int,i
     }
 }
 
-// BFS wavefront from hazard sources to assign hazard_distance
+// BFS wavefront from hazard sources to assign safety_score
 void hazard_wavefront(std::vector<Node>& nodes, const std::vector<std::pair<int,int>>& hazard_sources) {
     std::queue<int> Q;
     std::vector<int> closed(nodes.size(), 0);
@@ -84,7 +74,7 @@ void hazard_wavefront(std::vector<Node>& nodes, const std::vector<std::pair<int,
     for (auto& hsrc : hazard_sources) {
         for (auto& node : nodes) {
             if (node.x == hsrc.first && node.y == hsrc.second) {
-                node.hazard_distance = 0;
+                node.safety_score = 0;
                 Q.push(node.id);
                 break;
             }
@@ -94,33 +84,32 @@ void hazard_wavefront(std::vector<Node>& nodes, const std::vector<std::pair<int,
     while (!Q.empty()) {
         int n_id = Q.front(); Q.pop();
         Node& current = nodes[n_id-1];
-        int next_dist = current.hazard_distance + 1;
+        int next_dist = current.safety_score + 1;
         for (int nb_id : current.neighbors) {
             Node& nb = nodes[nb_id-1];
-            if (nb.hazard_distance > next_dist) {
-                nb.hazard_distance = next_dist;
+            if (nb.safety_score > next_dist) {
+                nb.safety_score = next_dist;
                 Q.push(nb.id);
             }
         }
     }
 }
 
-// Custom cost function (replace logic as needed)
 double next_cost(const Node& curr, const Node& next) {
-    // Simple version, can match your python logic exactly
-    if (curr.hazard_distance < next.hazard_distance && curr.d_exit > next.d_exit)
+    if (curr.safety_score < next.safety_score && curr.d_exit > next.d_exit)
         return 0.0;
-    if (curr.hazard_distance <= next.hazard_distance && curr.d_exit <= next.d_exit)
+    if (curr.safety_score <= next.safety_score && curr.d_exit <= next.d_exit)
         return 1.0;
-    if (curr.hazard_distance > next.hazard_distance && curr.d_exit >= next.d_exit)
+    if (curr.safety_score > next.safety_score && curr.d_exit >= next.d_exit)
         return 1.5;
-    if (curr.hazard_distance > next.hazard_distance && curr.d_exit < next.d_exit)
+    if (curr.safety_score > next.safety_score && curr.d_exit < next.d_exit)
         return 2.0;
     return 2.0;
 }
 
+
 // Hazard-aware A* pathfinding
-std::vector<int> hazard_aware_a_star(std::vector<Node>& nodes, const Grid& grid,
+std::vector<int> safeStar_path(std::vector<Node>& nodes, const Grid& grid,
                                      std::pair<int,int> start, const std::vector<std::pair<int,int>>& exits) {
     using P = std::pair<double, int>;
     std::priority_queue<P, std::vector<P>, std::greater<P>> open;
@@ -156,7 +145,8 @@ std::vector<int> hazard_aware_a_star(std::vector<Node>& nodes, const Grid& grid,
             if (!closed[nb_id-1] || new_cost < nb.cost) {
                 nb.cost = new_cost;
                 nb.backpointer = curr_id;
-                double priority = new_cost + (nb.d_exit - nb.hazard_distance); // match your heuristic
+                // Strongly bias toward higher safety_score, but always reach the exit
+                double priority = nb.d_exit - nb.safety_score;
                 open.emplace(priority, nb_id);
             }
         }
@@ -207,7 +197,7 @@ std::vector<int> classic_a_star(std::vector<Node>& nodes, const Grid& grid,
 
         for (int nb_id : curr.neighbors) {
             Node& nb = nodes[nb_id-1];
-            double new_cost = curr.cost + 1.0; // uniform cost
+            double new_cost = curr.cost + 1.0;
             if (!closed[nb_id-1] || new_cost < nb.cost) {
                 nb.cost = new_cost;
                 nb.backpointer = curr_id;
@@ -231,7 +221,7 @@ std::vector<int> classic_a_star(std::vector<Node>& nodes, const Grid& grid,
 
 // Print grid with path overlays
 void print_grid(const Grid& grid, const std::vector<Node>& nodes,
-                const std::vector<int>& hazard_path, const std::vector<int>& classic_path,
+                const std::vector<int>& safeStar_path, const std::vector<int>& classic_path,
                 std::pair<int,int> start, const std::vector<std::pair<int,int>>& exits,
                 const std::vector<std::pair<int,int>>& hazard_sources) {
     int size = grid.size();
@@ -241,17 +231,21 @@ void print_grid(const Grid& grid, const std::vector<Node>& nodes,
     // Obstacles
     for (int x=0; x<size; ++x) for (int y=0; y<size; ++y)
         if (grid[x][y]==0) vis[x][y] = '#';
-
-    // Hazard path: 2
-    for (int id : hazard_path) {
+                    
+    // Safe* path: 2
+    for (int id : safeStar_path) {
         auto& n = nodes[id-1];
         vis[n.x][n.y] = 'S';
     }
     // Classic path: 3 (will overwrite S if overlapping)
     for (int id : classic_path) {
-        auto& n = nodes[id-1];
+    auto& n = nodes[id-1];
+    if (vis[n.x][n.y] == 'S')
+        vis[n.x][n.y] = '@'; // Overlap
+    else
         vis[n.x][n.y] = 'A';
     }
+
     // Hazard sources
     for (auto& hs : hazard_sources)
         vis[hs.first][hs.second] = 'H';

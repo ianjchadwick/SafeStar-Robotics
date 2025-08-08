@@ -4,6 +4,25 @@
 #include <utility>
 #include <iostream>
 
+void print_safety_score(const Grid& grid, const std::vector<Node>& nodes) {
+    int size = grid.size();
+    std::vector<std::vector<int>> hd_map(size, std::vector<int>(size, -1));
+    for (const auto& node : nodes) {
+        hd_map[node.x][node.y] = node.safety_score;
+    }
+    std::cout << "Hazard distance map:\n";
+    for (int x=0; x<size; ++x) {
+        for (int y=0; y<size; ++y) {
+            if (grid[x][y] == 0)
+                std::cout << "## ";
+            else
+                std::cout << hd_map[x][y] << "  ";
+        }
+        std::cout << "\n";
+    }
+}
+
+
 int main() {
     int size = 9;
     std::vector<std::tuple<int,int,int,int>> obstacles = {
@@ -22,8 +41,16 @@ int main() {
     node_set_d_exit(nodes, exits);
     hazard_wavefront(nodes, hazard_sources);
 
+    print_safety_score(grid, nodes);
+
     // Paths
     auto safeStar = safeStar_path(nodes, grid, start, exits);
+
+    for (auto& node : nodes) {
+    node.cost = std::numeric_limits<double>::infinity();
+    node.backpointer = -1;
+    }
+
     auto classic = classic_a_star(nodes, grid, start, exits);
 
     // Print ASCII grid

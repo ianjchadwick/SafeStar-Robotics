@@ -9,7 +9,7 @@ struct Node {
     int id;
     int x, y;
     int d_exit = std::numeric_limits<int>::max();
-    int hazard_distance = std::numeric_limits<int>::max();
+    int safety_score = std::numeric_limits<int>::max();
     std::vector<int> neighbors;
     double cost = std::numeric_limits<double>::infinity();
     int backpointer = -1;

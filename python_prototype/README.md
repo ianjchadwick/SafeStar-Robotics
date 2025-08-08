@@ -9,8 +9,8 @@ Originally developed as part of an academic research project, the Python version
 ## Features
 
 - Weighted 2D grid map with obstacles and exits
-- Wavefront-based hazard propagation
-- Modified A* that balances proximity to exits and distance from hazards
+- Wavefront-based safety score propagation (higher score = farther from hazard, safer)
+- Modified A* that balances proximity to exits and maximizes safety score
 - Visualization with `pygame` to render paths, hazards, and environments
 
 ---
@@ -64,7 +64,7 @@ You can toggle between test scenarios by commenting/uncommenting the “FIGURE�
 - **Red** → Hazard sources
 - **Blue** → Start location
 - **Green** → Exits
-- **Purple** → Safe* path (hazard-aware: seeks the exit that is closest while avoiding hazard proximity)
+- **Purple** → Safe* path (hazard-aware: seeks the closest exit while maximizing safety score—i.e., distance from hazard)
 - **Orange** → Standard A* path (shortest path to any exit, ignores hazards; if overlapping, A* overwrites purple)
 
 The Safe* algorithm demonstrates routing that prioritizes both minimal path length and maximal safety from hazard zones. Standard A* is included as a baseline for comparison.
@@ -73,9 +73,11 @@ The Safe* algorithm demonstrates routing that prioritizes both minimal path leng
 
 ## Algorithm Summary
 
-- A wavefront search calculates a "hazard distance" from danger zones.
-- Each node stores both `d_exit` (distance to nearest exit) and `hazard_distance`.
-- A* is modified to prefer paths that both reduce exit distance and increase hazard distance.
+- A wavefront search calculates a **safety score** for each grid cell.
+    - Safety score is `0` on a hazard, increases with distance from hazard.
+    - Pathfinding prefers cells with higher safety scores.
+- Each node stores both `d_exit` (distance to nearest exit) and `safety_score`.
+- Modified A* prioritizes reducing exit distance and maximizing safety score.
 - Multiple scenarios demonstrate the effects of competing risk fields on routing.
 
 ---
