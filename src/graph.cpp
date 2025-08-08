@@ -2,8 +2,8 @@
 
 
 Graph::Graph(int size, 
-        const obstacle_vect_t& obstacle_list, 
-        const exit_vect_t& exit_list)
+        const Graph::obstacle_bitmap &obstacle_list, 
+        const Graph::exit_vect_t &exit_list)
 {
     
 }
